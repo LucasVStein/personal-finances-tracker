@@ -1,0 +1,5 @@
+# compilation files
+__pycache__/
+
+# internal project management
+todo.md
