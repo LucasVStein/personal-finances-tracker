@@ -3,3 +3,6 @@ __pycache__/
 
 # internal project management
 todo.md
+
+# data protection
+finances.db
