@@ -11,3 +11,7 @@ class Expense:
 
     def __repr__(self):
         return f"Expense(date: {self.date}, description: \"{self.description}\", category: {self.category.value}, amount: {self.amount})"
+
+    @classmethod
+    def list_categories(cls):
+        return Category.list()

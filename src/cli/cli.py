@@ -2,6 +2,16 @@ import argparse
 from datetime import datetime
 
 from internal_libs.category import Category
+from internal_libs.expense import Expense
+
+def handle_list_command(args):
+    print(f"this is list command with args: {args}")
+
+def handle_categories_command(args):
+    print(Expense.list_categories())
+
+def handle_add_command(args):
+    print(f"this is add command with args: {args}")
 
 def validate_date(date):
     try:
@@ -29,7 +39,14 @@ def main():
     add_parser.add_argument("--category", type = validate_category, help = "Category of the expense", metavar = "")
 
     args = parser.parse_args()
-    print(args)
+    if args.command == "list":
+        handle_list_command(args)
+    elif args.command == "categories":
+        handle_categories_command(args)
+    elif args.command == "add":
+        handle_add_command(args)
+    else:
+        print("Unknown command.") # should never happen
 
 if __name__ == "__main__":
     main()

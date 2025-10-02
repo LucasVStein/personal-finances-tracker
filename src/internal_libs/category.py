@@ -6,3 +6,7 @@ class Category(Enum):
     GAMING = "Gaming"
     UTILITIES = "Utilities"
     OTHER = "Other"
+
+    @classmethod
+    def list(cls):
+        return [c.value for c in cls]
