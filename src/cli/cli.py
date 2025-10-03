@@ -3,15 +3,26 @@ from datetime import datetime
 
 from internal_libs.category import Category
 from internal_libs.expense import Expense
+import db.database as db
 
 def handle_list_command(args):
-    print(f"this is list command with args: {args}")
+    for exp in db.get_expenses():
+        id = exp[0]
+        exp_class = Expense(exp[4],                        # exp[4] = amount
+                            exp[1],                        # exp[1] = date
+                            exp[2],                        # exp[2] = description
+                            Category(exp[3].capitalize())) # exp[3] = category
+        print(f"(id:{id}) {exp_class}")
 
 def handle_categories_command(args):
     print(Expense.list_categories())
 
 def handle_add_command(args):
-    print(f"this is add command with args: {args}")
+    expense = Expense(args.amount,
+                      args.date if args.date else datetime.today().date(),
+                      args.description if args.description else "",
+                      args.category if args.category else Category.OTHER)
+    db.add_expense(expense)
 
 def validate_date(date):
     try:
@@ -22,7 +33,7 @@ def validate_date(date):
 def validate_category(category: str):
     if category.capitalize() not in [category.value for category in Category]:
         raise argparse.ArgumentTypeError(f"Invalid category: \"{category}\". Choose from {[category.value for category in Category]}.")
-    return category.capitalize()
+    return Category(category.capitalize())
 
 def main():
     parser = argparse.ArgumentParser(description = "Personal Finances Tracker CLI")
