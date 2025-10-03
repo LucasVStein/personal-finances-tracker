@@ -14,6 +14,10 @@ DB_INSERT_EXPENSE_COMMAND = """
     VALUES (? ,? ,?, ?)
 """
 
+DB_DELETE_EXPENSE_COMMAND = """
+    DELETE FROM expenses WHERE id = ?
+"""
+
 def init_db(db_path: str = DB_DEFAULT_PATH):
     connection = sqlite3.connect(db_path)
     cursor = connection.cursor()
@@ -47,3 +51,13 @@ def add_expense(expense: Expense, db_path: str = DB_DEFAULT_PATH):
     
     connection.commit()
     connection.close()
+
+def del_expense(id: int, db_path: str = DB_DEFAULT_PATH) -> bool:
+    connection = sqlite3.connect(db_path)
+    cursor = connection.cursor()
+
+    cursor.execute(DB_DELETE_EXPENSE_COMMAND, (id,))
+    connection.commit()
+    connection.close()
+
+    return cursor.rowcount > 0

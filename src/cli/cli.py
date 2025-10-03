@@ -24,6 +24,9 @@ def handle_add_command(args):
                       args.category if args.category else Category.OTHER)
     db.add_expense(expense)
 
+def handle_del_command(args):
+    print("SUCCESS: Deletion successful" if db.del_expense(args.id) else "ERROR: Deletion failed.")
+
 def validate_date(date):
     try:
         return datetime.strptime(date, "%Y-%m-%d").date()
@@ -49,6 +52,9 @@ def main():
     add_parser.add_argument("--date", type = validate_date, help = "Date of the expense (YYYY-MM-DD)", metavar = "")
     add_parser.add_argument("--category", type = validate_category, help = "Category of the expense", metavar = "")
 
+    del_parser = subparsers.add_parser("del", help = "Deletes the expense")
+    del_parser.add_argument("id", type = int, help = "ID of the expense")
+
     args = parser.parse_args()
     if args.command == "list":
         handle_list_command(args)
@@ -56,8 +62,10 @@ def main():
         handle_categories_command(args)
     elif args.command == "add":
         handle_add_command(args)
+    elif args.command == "del":
+        handle_del_command(args)
     else:
-        print("Unknown command.") # should never happen
+        print("ERROR: Unknown command.") # should never happen
 
 if __name__ == "__main__":
     main()
