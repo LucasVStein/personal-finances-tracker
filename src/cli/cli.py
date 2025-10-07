@@ -24,6 +24,13 @@ def handle_add_command(args):
                       args.category if args.category else Category.OTHER)
     db.add_expense(expense)
 
+def handle_edit_command(args):
+    if args.date is None and args.description is None and args.category is None and args.amount is None:
+        print("ERROR: Choose at least one expense data to edit.")
+        return
+    print("SUCCESS: Edit successful" if db.edit_expense(args.id, args.date, args.description, args.category, args.amount)
+          else "ERROR: Edit failed.")
+
 def handle_del_command(args):
     print("SUCCESS: Deletion successful" if db.del_expense(args.id) else "ERROR: Deletion failed.")
 
@@ -52,6 +59,13 @@ def main():
     add_parser.add_argument("--date", type = validate_date, help = "Date of the expense (YYYY-MM-DD)", metavar = "")
     add_parser.add_argument("--category", type = validate_category, help = "Category of the expense", metavar = "")
 
+    edit_parser = subparsers.add_parser("edit", help = "Edit a expense")
+    edit_parser.add_argument("id", type = int, help = "ID of the expense")
+    edit_parser.add_argument("--amount", type = float, help = "New amount of the expense")
+    edit_parser.add_argument("--description", help = "New description of the expense", metavar = "")
+    edit_parser.add_argument("--date", type = validate_date, help = "New date of the expense (YYYY-MM-DD)", metavar = "")
+    edit_parser.add_argument("--category", type = validate_category, help = "New category of the expense", metavar = "")
+
     del_parser = subparsers.add_parser("del", help = "Deletes the expense")
     del_parser.add_argument("id", type = int, help = "ID of the expense")
 
@@ -62,6 +76,8 @@ def main():
         handle_categories_command(args)
     elif args.command == "add":
         handle_add_command(args)
+    elif args.command == "edit":
+        handle_edit_command(args)
     elif args.command == "del":
         handle_del_command(args)
     else:

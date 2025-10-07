@@ -38,7 +38,6 @@ def get_expenses(db_path: str = DB_DEFAULT_PATH):
     connection.close()
     
     return expenses
-    
 
 def add_expense(expense: Expense, db_path: str = DB_DEFAULT_PATH):
     connection = sqlite3.connect(db_path)
@@ -51,6 +50,38 @@ def add_expense(expense: Expense, db_path: str = DB_DEFAULT_PATH):
     
     connection.commit()
     connection.close()
+
+def edit_expense(id: int, new_date = None, new_description = None, new_category = None, new_amount = None, db_path: str = DB_DEFAULT_PATH) -> bool:
+    fields = []
+    values = []
+
+    if new_date is not None:
+        fields.append("date = ?")
+        values.append(new_date)
+    if new_description is not None:
+        fields.append("description = ?")
+        values.append(new_description)
+    if new_category is not None:
+        fields.append("category = ?")
+        values.append(new_category)
+    if new_amount is not None:
+        fields.append("amount = ?")
+        values.append(new_amount)
+
+    if not fields or not values:
+        return False # should never happen
+    
+    values.append(id)
+
+    query_str = f"UPDATE expenses SET {", ".join(fields)} WHERE id = ?"
+
+    connection = sqlite3.connect(db_path)
+    cursor = connection.cursor()
+    cursor.execute(query_str, tuple(values))
+    connection.commit()
+    connection.close()
+
+    return cursor.rowcount > 0
 
 def del_expense(id: int, db_path: str = DB_DEFAULT_PATH) -> bool:
     connection = sqlite3.connect(db_path)
