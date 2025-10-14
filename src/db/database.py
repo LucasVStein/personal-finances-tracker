@@ -7,6 +7,10 @@ from internal_libs.income import Income
 SCHEMA_PATH = Path(__file__).parent / "schema.sql"
 DB_DEFAULT_PATH = "finances.db"
 
+DB_GET_BALANCE_COMMAND = """
+    SELECT * FROM balance
+"""
+
 def init_db(db_path: str = DB_DEFAULT_PATH):
     connection = sqlite3.connect(db_path)
     cursor = connection.cursor()
@@ -15,14 +19,30 @@ def init_db(db_path: str = DB_DEFAULT_PATH):
         schema = inf.read()
     cursor.executescript(schema)
 
+    # check if balance already exists, if not initialize it to 0
+    cursor.execute("SELECT COUNT(*) FROM balance")
+    if cursor.fetchone()[0] == 0:
+        cursor.execute("INSERT INTO balance (id, curr_balance) VALUES (1, 0)")
+
     connection.commit()
     connection.close()
+
+def get_balance(db_path: str = DB_DEFAULT_PATH):
+    connection = sqlite3.connect(db_path)
+    cursor = connection.cursor()
+
+    cursor.execute(DB_GET_BALANCE_COMMAND)
+    balance = cursor.fetchone()[1] # index 0 is id, index 1 is balance
+    connection.close()
+    
+    return balance
 
 # EXPENSES DB LOGIC _______________________________________________
 
 DB_GETALL_EXPENSES_COMMAND = """
     SELECT * FROM expenses
 """
+
 DB_INSERT_EXPENSE_COMMAND = """
     INSERT INTO expenses (date, description, category, amount)
     VALUES (? ,? ,?, ?)
@@ -101,6 +121,7 @@ def del_expense(id: int, db_path: str = DB_DEFAULT_PATH) -> bool:
 DB_GETALL_INCOMES_COMMAND = """
     SELECT * FROM incomes
 """
+
 DB_INSERT_INCOME_COMMAND = """
     INSERT INTO incomes (date, description, category, amount)
     VALUES (? ,? ,?, ?)

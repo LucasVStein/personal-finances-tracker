@@ -16,6 +16,9 @@ def validate_date(date):
         return datetime.strptime(date, "%Y-%m-%d").date()
     except ValueError:
         raise argparse.ArgumentTypeError(f"Invalid date format: \"{date}\". Expected YYYY-MM-DD.")
+    
+def handle_show_balance():
+    print(f"Current balance: {db.get_balance():.2f}€")
 
 # EXPENSES CLI LOGIC _______________________________________________
 
@@ -105,6 +108,8 @@ def main():
     parser = argparse.ArgumentParser(description = "Personal Finances Tracker CLI")
     subparsers = parser.add_subparsers(dest = "command", required = True)
 
+    balance_parser = subparsers.add_parser("show_balance", help = "Displays the current balance")
+
     exp_list_parser = subparsers.add_parser("list_exp", help = "Lists all expenses")
     inc_list_parser = subparsers.add_parser("list_inc", help = "Lists all incomes")
 
@@ -143,8 +148,12 @@ def main():
     del_inc_parser.add_argument("id", type = int, help = "ID of the income")
 
     args = parser.parse_args()
-    if args.command == "list_exp":
+    if args.command == "show_balance":
+        handle_show_balance()
+    elif args.command == "list_exp":
         handle_exp_list_command(args)
+    elif args.command == "list_inc":
+        handle_inc_list_command(args)
     elif args.command == "categories":
         handle_categories_command(args)
     elif args.command == "add_exp":
@@ -153,8 +162,6 @@ def main():
         handle_edit_exp_command(args)
     elif args.command == "del_exp":
         handle_del_exp_command(args)
-    elif args.command == "list_inc":
-        handle_inc_list_command(args)
     elif args.command == "add_inc":
         handle_add_inc_command(args)
     elif args.command == "edit_inc":
