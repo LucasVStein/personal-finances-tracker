@@ -29,6 +29,10 @@ def handle_exp_list_command(args):
         print(f"(id:{id}) {exp_class}")
 
 def handle_add_exp_command(args):
+    if args.amount <= 0:
+        print("ERROR: Amount needs to be positive (> 0).")
+        return
+    
     expense = Expense(args.amount,
                       args.date if args.date else datetime.today().date(),
                       args.description if args.description else "",
@@ -39,6 +43,10 @@ def handle_edit_exp_command(args):
     if args.date is None and args.description is None and args.category is None and args.amount is None:
         print("ERROR: Choose at least one expense data to edit.")
         return
+    elif args.amount is not None and args.amount <= 0:
+        print("ERROR: Amount needs to be positive (> 0).")
+        return
+    
     print("SUCCESS: Edit successful" if db.edit_expense(args.id, args.date, args.description, args.category, args.amount)
           else "ERROR: Edit failed.")
 
@@ -62,6 +70,10 @@ def handle_inc_list_command(args):
         print(f"(id:{id}) {inc_class}")
 
 def handle_add_inc_command(args):
+    if args.amount <= 0:
+        print("ERROR: Amount needs to be positive (> 0).")
+        return
+    
     income = Income(args.amount,
                     args.date if args.date else datetime.today().date(),
                     args.description if args.description else "",
@@ -72,6 +84,10 @@ def handle_edit_inc_command(args):
     if args.date is None and args.description is None and args.category is None and args.amount is None:
         print("ERROR: Choose at least one income data to edit.")
         return
+    elif args.amount is not None and args.amount <= 0:
+        print("ERROR: Amount needs to be positive (> 0).")
+        return
+    
     print("SUCCESS: Edit successful" if db.edit_income(args.id, args.date, args.description, args.category, args.amount)
           else "ERROR: Edit failed.")
 
