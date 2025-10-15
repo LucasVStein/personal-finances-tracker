@@ -20,6 +20,9 @@ def validate_date(date):
 def handle_show_balance():
     print(f"Current balance: {db.get_balance():.2f}€")
 
+def handle_set_balance(args):
+    print("SUCCESS: New balance set." if db.set_balance(args.balance) else "ERROR: Not possible to update balance.")
+
 # EXPENSES CLI LOGIC _______________________________________________
 
 def handle_exp_list_command(args):
@@ -108,7 +111,9 @@ def main():
     parser = argparse.ArgumentParser(description = "Personal Finances Tracker CLI")
     subparsers = parser.add_subparsers(dest = "command", required = True)
 
-    balance_parser = subparsers.add_parser("show_balance", help = "Displays the current balance")
+    get_balance_parser = subparsers.add_parser("show_balance", help = "Displays the current balance")
+    set_balance_parser = subparsers.add_parser("set_balance", help = "Set the balance value")
+    set_balance_parser.add_argument("balance", type = float, help = "Balance value to set")
 
     exp_list_parser = subparsers.add_parser("list_exp", help = "Lists all expenses")
     inc_list_parser = subparsers.add_parser("list_inc", help = "Lists all incomes")
@@ -150,6 +155,8 @@ def main():
     args = parser.parse_args()
     if args.command == "show_balance":
         handle_show_balance()
+    elif args.command == "set_balance":
+        handle_set_balance(args)
     elif args.command == "list_exp":
         handle_exp_list_command(args)
     elif args.command == "list_inc":

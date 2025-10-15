@@ -11,6 +11,10 @@ DB_GET_BALANCE_COMMAND = """
     SELECT * FROM balance
 """
 
+DB_SET_BALANCE_COMMAND = """
+    UPDATE balance SET curr_balance = ? WHERE id = 1
+"""
+
 def init_db(db_path: str = DB_DEFAULT_PATH):
     connection = sqlite3.connect(db_path)
     cursor = connection.cursor()
@@ -36,6 +40,16 @@ def get_balance(db_path: str = DB_DEFAULT_PATH):
     connection.close()
     
     return balance
+
+def set_balance(balance: int, db_path: str = DB_DEFAULT_PATH) -> bool:
+    connection = sqlite3.connect(db_path)
+    cursor = connection.cursor()
+
+    cursor.execute(DB_SET_BALANCE_COMMAND, (balance,))
+    connection.commit()
+    connection.close()
+
+    return cursor.rowcount == 1
 
 # EXPENSES DB LOGIC _______________________________________________
 
