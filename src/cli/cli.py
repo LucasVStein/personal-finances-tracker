@@ -23,6 +23,9 @@ def handle_show_balance():
 def handle_set_balance(args):
     print("SUCCESS: New balance set." if db.set_balance(args.balance) else "ERROR: Not possible to update balance.")
 
+def update_balance(diff: int) -> bool:
+    pass
+
 # EXPENSES CLI LOGIC _______________________________________________
 
 def handle_exp_list_command(args):

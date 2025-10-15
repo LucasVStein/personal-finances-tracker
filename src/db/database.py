@@ -85,6 +85,10 @@ def add_expense(expense: Expense, db_path: str = DB_DEFAULT_PATH):
                                                expense.category.name,
                                                expense.amount))
     
+    cursor.execute(DB_GET_BALANCE_COMMAND)
+    new_balance = cursor.fetchone()[1] - expense.amount
+    cursor.execute(DB_SET_BALANCE_COMMAND, (new_balance,))
+    
     connection.commit()
     connection.close()
 
@@ -114,7 +118,16 @@ def edit_expense(id: int, new_date = None, new_description = None, new_category 
 
     connection = sqlite3.connect(db_path)
     cursor = connection.cursor()
+
+    if new_amount is not None:
+        cursor.execute("SELECT * FROM expenses WHERE id = ?", (id,))
+        old_amount = cursor.fetchone()[4] # 4 is the position of the amount
+        diff = old_amount - new_amount
+
+        cursor.execute("UPDATE balance SET curr_balance = curr_balance + ? WHERE id = 1", (diff,))
+
     cursor.execute(query_str, tuple(values))
+
     connection.commit()
     connection.close()
 
@@ -123,6 +136,10 @@ def edit_expense(id: int, new_date = None, new_description = None, new_category 
 def del_expense(id: int, db_path: str = DB_DEFAULT_PATH) -> bool:
     connection = sqlite3.connect(db_path)
     cursor = connection.cursor()
+
+    cursor.execute("SELECT * FROM expenses WHERE id = ?", (id,))
+    diff = cursor.fetchone()[4]
+    cursor.execute("UPDATE balance SET curr_balance = curr_balance + ? WHERE id = 1", (diff,))
 
     cursor.execute(DB_DELETE_EXPENSE_COMMAND, (id,))
     connection.commit()
@@ -164,6 +181,10 @@ def add_income(income: Income, db_path: str = DB_DEFAULT_PATH):
                                               income.category.name,
                                               income.amount))
     
+    cursor.execute(DB_GET_BALANCE_COMMAND)
+    new_balance = cursor.fetchone()[1] + income.amount
+    cursor.execute(DB_SET_BALANCE_COMMAND, (new_balance,))
+    
     connection.commit()
     connection.close()
 
@@ -193,6 +214,14 @@ def edit_income(id: int, new_date = None, new_description = None, new_category =
 
     connection = sqlite3.connect(db_path)
     cursor = connection.cursor()
+
+    if new_amount is not None:
+        cursor.execute("SELECT * FROM incomes WHERE id = ?", (id,))
+        old_amount = cursor.fetchone()[4] # 4 is the position of the amount
+        diff = old_amount - new_amount
+
+        cursor.execute("UPDATE balance SET curr_balance = curr_balance - ? WHERE id = 1", (diff,))
+
     cursor.execute(query_str, tuple(values))
     connection.commit()
     connection.close()
@@ -202,6 +231,10 @@ def edit_income(id: int, new_date = None, new_description = None, new_category =
 def del_income(id: int, db_path: str = DB_DEFAULT_PATH) -> bool:
     connection = sqlite3.connect(db_path)
     cursor = connection.cursor()
+
+    cursor.execute("SELECT * FROM incomes WHERE id = ?", (id,))
+    diff = cursor.fetchone()[4]
+    cursor.execute("UPDATE balance SET curr_balance = curr_balance - ? WHERE id = 1", (diff,))
 
     cursor.execute(DB_DELETE_INCOME_COMMAND, (id,))
     connection.commit()
