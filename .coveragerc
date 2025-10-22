@@ -1,0 +1,9 @@
+[run]
+
+omit =
+    src/main.py
+    src/*/__init__.py
+
+[report]
+
+show_missing = True

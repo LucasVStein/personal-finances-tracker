@@ -1,8 +1,10 @@
 # compilation files
 __pycache__/
 
-# internal project management
-todo.md
-
 # data protection
 finances.db
+
+# unit tests
+.pytest_cache
+.coverage
+htmlcov
