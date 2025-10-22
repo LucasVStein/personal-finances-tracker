@@ -8,3 +8,6 @@ finances.db
 .pytest_cache
 .coverage
 htmlcov
+
+# random
+.DS_Store
