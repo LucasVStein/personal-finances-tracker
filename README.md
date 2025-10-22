@@ -1,3 +1,6 @@
+[![Python Version](https://img.shields.io/badge/python-3.12-blue)](https://www.python.org/downloads/)
+![License](https://img.shields.io/badge/license-MIT-green)
+
 # 💰 Personal Finances Tracker
 
 A **cross-platform personal finance management tool** built in **Python**, designed to help you track your expenses and incomes easily. It currently runs through a **Command-Line Interface (CLI)** and stores your financial data locally using **SQLite**. Future versions will include a **desktop GUI** for macOS and other operating systems.
@@ -32,7 +35,7 @@ A **cross-platform personal finance management tool** built in **Python**, desig
 
 ✅ Extensible architecture — easily add new features
 
-✅ Unit-tested (TBD)
+✅ Unit-tested
 
 ---
 
@@ -207,19 +210,12 @@ python3 src/main.py add_exp --help
 
 ## 🧪 Testing
 
-Unit tests are written using **pytest**.
+Unit tests are written using **pytest**. Unit test configuration is done on the **pytest.py** and **.coveragerc** files.
 
-Run all tests:
+Run all tests and coverage report:
 
 ```bash
-pytest -v
-```
-
-Example output:
-
-```
-tests/test_expense.py::test_expense_default_values PASSED
-tests/test_expense_custom_values PASSED
+pytest
 ```
 
 ---
