@@ -7,7 +7,7 @@ from internal_libs.expense import Expense
 from internal_libs.income import Income
 import db.database as db
 
-def handle_categories_command(args):
+def handle_categories_command():
     print(f"Possible categories for Expenses: {Expense.list_categories()}")
     print(f"Possible categories for Incomes: {Income.list_categories()}")
 
@@ -165,7 +165,7 @@ def main():
     elif args.command == "list_inc":
         handle_inc_list_command(args)
     elif args.command == "categories":
-        handle_categories_command(args)
+        handle_categories_command()
     elif args.command == "add_exp":
         handle_add_exp_command(args)
     elif args.command == "edit_exp":
