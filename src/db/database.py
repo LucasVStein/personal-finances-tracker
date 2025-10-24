@@ -125,6 +125,8 @@ def add_expense(expense: Expense, db_path: str = DB_DEFAULT_PATH) -> bool:
         connection.commit()
         connection.close()
 
+        return True
+
     except sqlite3.Error as e:
         print(f"Database error: {e}")
         return False
@@ -230,7 +232,7 @@ def get_incomes(db_path: str = DB_DEFAULT_PATH) -> tuple[bool, list | str]:
         incomes = cursor.fetchall()
         connection.close()
         
-        return incomes
+        return True, incomes
     
     except sqlite3.Error as e:
         print(f"Database error: {e}")
@@ -256,6 +258,8 @@ def add_income(income: Income, db_path: str = DB_DEFAULT_PATH) -> bool:
         
         connection.commit()
         connection.close()
+
+        return True
 
     except sqlite3.Error as e:
         print(f"Database error: {e}")
