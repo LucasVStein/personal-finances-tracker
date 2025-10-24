@@ -18,15 +18,25 @@ def validate_date(date):
         raise argparse.ArgumentTypeError(f"Invalid date format: \"{date}\". Expected YYYY-MM-DD.")
     
 def handle_show_balance():
-    print(f"Current balance: {db.get_balance():.2f}€")
+    success, value = db.get_balance()
+
+    if success:
+        print(f"Current balance: {value:.2f}€")
+    else:
+        print(f"ERROR: {value}.")
 
 def handle_set_balance(args):
-    print("SUCCESS: New balance set." if db.set_balance(args.balance) else "ERROR: Not possible to update balance.")
+    print("SUCCESS: New balance set." if db.set_balance(args.balance) else "ERROR: Error while trying to change the balance value.")
 
 # EXPENSES CLI LOGIC _______________________________________________
 
 def handle_exp_list_command():
-    for exp in db.get_expenses():
+    success, value = db.get_expenses()
+
+    if not success:
+        print("ERROR: Error while trying to retrieve Expense list from db.")
+
+    for exp in value:
         id = exp[0]
         exp_class = Expense(exp[4],                           # exp[4] = amount
                             exp[1],                           # exp[1] = date
@@ -43,7 +53,9 @@ def handle_add_exp_command(args):
                       args.date if args.date else datetime.today().date(),
                       args.description if args.description else "",
                       args.category if args.category else ExpCategory.OTHER)
-    db.add_expense(expense)
+    
+    success = db.add_expense(expense)
+    print("SUCCESS: Expense added to the db." if success else "ERROR: Error while trying to add Expense to db.")
 
 def handle_edit_exp_command(args):
     if args.date is None and args.description is None and args.category is None and args.amount is None:
@@ -53,7 +65,7 @@ def handle_edit_exp_command(args):
         print("ERROR: Amount needs to be positive (> 0).")
         return
     
-    print("SUCCESS: Edit successful" if db.edit_expense(args.id, args.date, args.description, args.category, args.amount)
+    print("SUCCESS: Edit successful." if db.edit_expense(args.id, args.date, args.description, args.category, args.amount)
           else "ERROR: Edit failed.")
 
 def handle_del_exp_command(args):
@@ -67,7 +79,12 @@ def validate_expense_category(category: str):
 # INCOMES CLI LOGIC ________________________________________________
 
 def handle_inc_list_command():
-    for inc in db.get_incomes():
+    success, value = db.get_incomes()
+
+    if not success:
+        print("ERROR: Error while trying to retrieve Income list.")
+
+    for inc in value:
         id = inc[0]
         inc_class = Income(inc[4],                           # inc[4] = amount
                            inc[1],                           # inc[1] = date
@@ -84,7 +101,9 @@ def handle_add_inc_command(args):
                     args.date if args.date else datetime.today().date(),
                     args.description if args.description else "",
                     args.category if args.category else IncCategory.OTHER)
-    db.add_income(income)
+    
+    success = db.add_income(income)
+    print("SUCCESS: Income added to the db." if success else "ERROR: Error while trying to add Income to the db.")
 
 def handle_edit_inc_command(args):
     if args.date is None and args.description is None and args.category is None and args.amount is None:
