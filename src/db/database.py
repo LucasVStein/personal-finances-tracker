@@ -101,12 +101,10 @@ def get_expenses(db_path: str = DB_DEFAULT_PATH) -> tuple[bool, list | str]:
         return True, expenses
     
     except sqlite3.Error as e:
-        print(f"Database error: {e}")
-        return False, f"Database error: {e}"
+        return False, "Database error"
     
     except Exception as e:
-        print(f"Unexpected error: {e}")
-        return False, f"Unexpected error: {e}"
+        return False, "Unexpected error"
 
 def add_expense(expense: Expense, db_path: str = DB_DEFAULT_PATH) -> bool:
     try:

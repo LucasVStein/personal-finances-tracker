@@ -34,7 +34,8 @@ def handle_exp_list_command():
     success, value = db.get_expenses()
 
     if not success:
-        print("ERROR: Error while trying to retrieve Expense list from db.")
+        print(f"ERROR: {value}.")
+        return
 
     for exp in value:
         id = exp[0]
@@ -83,6 +84,7 @@ def handle_inc_list_command():
 
     if not success:
         print("ERROR: Error while trying to retrieve Income list.")
+        return
 
     for inc in value:
         id = inc[0]

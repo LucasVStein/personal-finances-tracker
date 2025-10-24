@@ -25,7 +25,7 @@ def test_show_categories(capsys):
 
     assert out == expected_out
 
-def test_date_validation_correct_input():
+def test_date_validation_positive():
     """test the date validation when a correct input is passed"""
 
     res = cli.validate_date("1998-06-04")
@@ -34,7 +34,7 @@ def test_date_validation_correct_input():
     assert res.month == 6
     assert res.day == 4
 
-def test_date_validation_incorrect_input():
+def test_date_validation_negative():
     """test the date validation when an incorrect input is passed"""
 
     with pytest.raises(argparse.ArgumentTypeError) as err:
@@ -43,14 +43,25 @@ def test_date_validation_incorrect_input():
     expected_out = "Invalid date format: \"wrong format\". Expected YYYY-MM-DD."
     assert str(err.value) == expected_out
 
-def test_show_balance(monkeypatch, capsys):
-    """test the show balance method"""
+def test_show_balance_positive(monkeypatch, capsys):
+    """positive test the show balance method"""
 
-    monkeypatch.setattr(db, "get_balance", lambda: 1500)
+    monkeypatch.setattr(db, "get_balance", lambda: (True, 1500))
 
     cli.handle_show_balance()
     out = capsys.readouterr().out
     expected_out = "Current balance: 1500.00€\n"
+
+    assert out == expected_out
+
+def test_show_balance_negative(monkeypatch, capsys):
+    """negative test the show balance method"""
+
+    monkeypatch.setattr(db, "get_balance", lambda: (False, "Database error"))
+
+    cli.handle_show_balance()
+    out = capsys.readouterr().out
+    expected_out = "ERROR: Database error.\n"
 
     assert out == expected_out
 
@@ -82,16 +93,16 @@ def test_set_balance_negative(monkeypatch, capsys):
 
     cli.handle_set_balance(dummy)
     out = capsys.readouterr().out
-    expected_out = "ERROR: Not possible to update balance.\n"
+    expected_out = "ERROR: Error while trying to change the balance value.\n"
 
     assert out == expected_out
 
-def test_list_expenses_handler(monkeypatch, capsys):
-    """test method that handles the list expenses command"""
+def test_list_expenses_handler_positive(monkeypatch, capsys):
+    """positive test method that handles the list expenses command"""
 
     dummyExpenses = [(0, "1998-06-04", "description test", "gaming", 70),
                      (1, "2025-10-24", "description test 2", "other", 5)]
-    monkeypatch.setattr(db, "get_expenses", lambda: dummyExpenses)
+    monkeypatch.setattr(db, "get_expenses", lambda: (True, dummyExpenses))
 
     cli.handle_exp_list_command()
     out = capsys.readouterr().out
@@ -99,5 +110,16 @@ def test_list_expenses_handler(monkeypatch, capsys):
         "(id:0) Expense(date: 1998-06-04, description: \"description test\", category: Gaming, amount: 70.00€)\n"
         "(id:1) Expense(date: 2025-10-24, description: \"description test 2\", category: Other, amount: 5.00€)\n"
     )
+
+    assert out == expected_out
+
+def test_list_expenses_handler_negative(monkeypatch, capsys):
+    """negative test method that handles the list expenses command"""
+
+    monkeypatch.setattr(db, "get_expenses", lambda: (False, "Database error"))
+
+    cli.handle_exp_list_command()
+    out = capsys.readouterr().out
+    expected_out = "ERROR: Database error.\n"
 
     assert out == expected_out
