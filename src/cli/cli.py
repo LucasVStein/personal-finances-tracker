@@ -23,12 +23,9 @@ def handle_show_balance():
 def handle_set_balance(args):
     print("SUCCESS: New balance set." if db.set_balance(args.balance) else "ERROR: Not possible to update balance.")
 
-def update_balance(diff: int) -> bool:
-    pass
-
 # EXPENSES CLI LOGIC _______________________________________________
 
-def handle_exp_list_command(args):
+def handle_exp_list_command():
     for exp in db.get_expenses():
         id = exp[0]
         exp_class = Expense(exp[4],                           # exp[4] = amount
@@ -69,7 +66,7 @@ def validate_expense_category(category: str):
 
 # INCOMES CLI LOGIC ________________________________________________
 
-def handle_inc_list_command(args):
+def handle_inc_list_command():
     for inc in db.get_incomes():
         id = inc[0]
         inc_class = Income(inc[4],                           # inc[4] = amount
@@ -161,9 +158,9 @@ def main():
     elif args.command == "set_balance":
         handle_set_balance(args)
     elif args.command == "list_exp":
-        handle_exp_list_command(args)
+        handle_exp_list_command()
     elif args.command == "list_inc":
-        handle_inc_list_command(args)
+        handle_inc_list_command()
     elif args.command == "categories":
         handle_categories_command()
     elif args.command == "add_exp":
