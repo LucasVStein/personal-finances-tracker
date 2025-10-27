@@ -2,6 +2,7 @@ import sys
 import os
 import pytest
 import argparse
+from datetime import date
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "../src"))
 
@@ -123,3 +124,426 @@ def test_list_expenses_handler_negative(monkeypatch, capsys):
     expected_out = "ERROR: Database error.\n"
 
     assert out == expected_out
+
+def test_add_expense_positive_1(monkeypatch, capsys):
+    """test the positive result of adding a new expense with custom values"""
+
+    monkeypatch.setattr(db, "add_expense", lambda expense: True)
+
+    class DummyClass:
+        pass
+    dummy = DummyClass()
+    dummy.amount = 20
+    dummy.date = date.fromisoformat("2025-09-05")
+    dummy.description = "test description"
+    dummy.category = ExpCategory.TRANSPORT
+
+    cli.handle_add_exp_command(dummy)
+    out = capsys.readouterr().out
+    expected_out = "SUCCESS: Expense added to the db.\n"
+
+    assert out == expected_out
+
+def test_add_expense_positive_2(monkeypatch, capsys):
+    """test the positive result of adding a new expense with default values"""
+
+    monkeypatch.setattr(db, "add_expense", lambda expense: True)
+
+    class DummyClass:
+        pass
+    dummy = DummyClass()
+    dummy.amount = 15
+    dummy.date = None
+    dummy.description = None
+    dummy.category = None
+
+    cli.handle_add_exp_command(dummy)
+    out = capsys.readouterr().out
+    expected_out = "SUCCESS: Expense added to the db.\n"
+
+    assert out == expected_out
+
+def test_add_expense_negative_1(capsys):
+    """test the negative result of adding a new expense with a negative amount"""
+
+    class DummyClass:
+        pass
+    dummy = DummyClass()
+    dummy.amount = -5
+    dummy.date = None
+    dummy.description = None
+    dummy.category = None
+
+    cli.handle_add_exp_command(dummy)
+    out = capsys.readouterr().out
+    expected_out = "ERROR: Amount needs to be positive (> 0).\n"
+
+    assert out == expected_out
+
+def test_add_expense_negative_2(monkeypatch, capsys):
+    """test the negative result of adding a new expense with a db error"""
+
+    monkeypatch.setattr(db, "add_expense", lambda expense: False)
+
+    class DummyClass:
+        pass
+    dummy = DummyClass()
+    dummy.amount = 50
+    dummy.date = None
+    dummy.description = None
+    dummy.category = None
+
+    cli.handle_add_exp_command(dummy)
+    out = capsys.readouterr().out
+    expected_out = "ERROR: Error while trying to add Expense to db.\n"
+
+    assert out == expected_out
+
+def test_edit_expense_positive(monkeypatch, capsys):
+    """test the positive result of editing an expense"""
+
+    monkeypatch.setattr(db, "edit_expense", lambda *expense: True)
+
+    class DummyClass:
+        pass
+    dummy = DummyClass()
+    dummy.amount = 20
+    dummy.date = None
+    dummy.description = "test desc"
+    dummy.category = None
+    dummy.id = 1
+
+    cli.handle_edit_exp_command(dummy)
+    out = capsys.readouterr().out
+    expected_out = "SUCCESS: Edit successful.\n"
+
+    assert out == expected_out
+
+def test_edit_expense_negative_1(capsys):
+    """test the negative result of editing an expense with no data selected"""
+
+    class DummyClass:
+        pass
+    dummy = DummyClass()
+    dummy.amount = None
+    dummy.date = None
+    dummy.description = None
+    dummy.category = None
+
+    cli.handle_edit_exp_command(dummy)
+    out = capsys.readouterr().out
+    expected_out = "ERROR: Choose at least one expense data to edit.\n"
+
+    assert out == expected_out
+
+def test_edit_expense_negative_2(capsys):
+    """test the negative result of editing an expense with a negative amount"""
+
+    class DummyClass:
+        pass
+    dummy = DummyClass()
+    dummy.amount = -10
+    dummy.date = None
+    dummy.description = None
+    dummy.category = None
+
+    cli.handle_edit_exp_command(dummy)
+    out = capsys.readouterr().out
+    expected_out = "ERROR: Amount needs to be positive (> 0).\n"
+
+    assert out == expected_out
+
+def test_edit_expense_negative_3(monkeypatch, capsys):
+    """test the negative result of editing an expense with a db error"""
+
+    monkeypatch.setattr(db, "edit_expense", lambda *expense: False)
+
+    class DummyClass:
+        pass
+    dummy = DummyClass()
+    dummy.amount = 2
+    dummy.date = None
+    dummy.description = "test"
+    dummy.category = None
+    dummy.id = 1
+
+    cli.handle_edit_exp_command(dummy)
+    out = capsys.readouterr().out
+    expected_out = "ERROR: Edit failed.\n"
+
+    assert out == expected_out
+
+def test_delete_expense_positive(monkeypatch, capsys):
+    """test the positive result of deleting an expense"""
+
+    monkeypatch.setattr(db, "del_expense", lambda id: True)
+
+    class DummyClass:
+        pass
+    dummy = DummyClass()
+    dummy.id = 1
+
+    cli.handle_del_exp_command(dummy)
+    out = capsys.readouterr().out
+    expected_out = "SUCCESS: Deletion successful.\n"
+
+    assert out == expected_out
+
+def test_delete_expense_negative(monkeypatch, capsys):
+    """test the negative result of deleting an expense with a db error"""
+
+    monkeypatch.setattr(db, "del_expense", lambda id: False)
+
+    class DummyClass:
+        pass
+    dummy = DummyClass()
+    dummy.id = 1
+
+    cli.handle_del_exp_command(dummy)
+    out = capsys.readouterr().out
+    expected_out = "ERROR: Deletion failed.\n"
+
+    assert out == expected_out
+
+def test_exp_category_validation_positive():
+    """test the expense category validation when a correct input is passed"""
+
+    res = cli.validate_expense_category("food")
+
+    assert type(res) == ExpCategory
+    assert res.value == ExpCategory.FOOD.value
+    assert res.name == ExpCategory.FOOD.name
+
+def test_exp_category_validation_negative():
+    """test the expense category validation when an incorrect input is passed"""
+
+    with pytest.raises(argparse.ArgumentTypeError) as err:
+        cli.validate_expense_category("wrong format")
+
+    expected_out = f"Invalid category: \"wrong format\". Choose from {[category.value for category in ExpCategory]}."
+    assert str(err.value) == expected_out
+
+def test_list_incomes_handler_positive(monkeypatch, capsys):
+    """positive test method that handles the list incomes command"""
+
+    dummyIncomes = [(0, "2025-10-27", "description test", "salary", 2000),
+                    (1, "2025-10-24", "description test 2", "other", 5)]
+    monkeypatch.setattr(db, "get_incomes", lambda: (True, dummyIncomes))
+
+    cli.handle_inc_list_command()
+    out = capsys.readouterr().out
+    expected_out = (
+        "(id:0) Income(date: 2025-10-27, description: \"description test\", category: Salary, amount: 2000.00€)\n"
+        "(id:1) Income(date: 2025-10-24, description: \"description test 2\", category: Other, amount: 5.00€)\n"
+    )
+
+    assert out == expected_out
+
+def test_list_incomes_handler_negative(monkeypatch, capsys):
+    """negative test method that handles the list incomes command"""
+
+    monkeypatch.setattr(db, "get_incomes", lambda: (False, "Database error"))
+
+    cli.handle_inc_list_command()
+    out = capsys.readouterr().out
+    expected_out = "ERROR: Database error.\n"
+
+    assert out == expected_out
+
+def test_add_income_positive_1(monkeypatch, capsys):
+    """test the positive result of adding a new income with custom values"""
+
+    monkeypatch.setattr(db, "add_income", lambda income: True)
+
+    class DummyClass:
+        pass
+    dummy = DummyClass()
+    dummy.amount = 20
+    dummy.date = date.fromisoformat("2025-09-05")
+    dummy.description = "test description"
+    dummy.category = IncCategory.INVESTMENT
+
+    cli.handle_add_inc_command(dummy)
+    out = capsys.readouterr().out
+    expected_out = "SUCCESS: Income added to the db.\n"
+
+    assert out == expected_out
+
+def test_add_income_positive_2(monkeypatch, capsys):
+    """test the positive result of adding a new income with default values"""
+
+    monkeypatch.setattr(db, "add_income", lambda income: True)
+
+    class DummyClass:
+        pass
+    dummy = DummyClass()
+    dummy.amount = 15
+    dummy.date = None
+    dummy.description = None
+    dummy.category = None
+
+    cli.handle_add_inc_command(dummy)
+    out = capsys.readouterr().out
+    expected_out = "SUCCESS: Income added to the db.\n"
+
+    assert out == expected_out
+
+def test_add_income_negative_1(capsys):
+    """test the negative result of adding a new income with a negative amount"""
+
+    class DummyClass:
+        pass
+    dummy = DummyClass()
+    dummy.amount = -5
+    dummy.date = None
+    dummy.description = None
+    dummy.category = None
+
+    cli.handle_add_inc_command(dummy)
+    out = capsys.readouterr().out
+    expected_out = "ERROR: Amount needs to be positive (> 0).\n"
+
+    assert out == expected_out
+
+def test_add_income_negative_2(monkeypatch, capsys):
+    """test the negative result of adding a new income with a db error"""
+
+    monkeypatch.setattr(db, "add_income", lambda income: False)
+
+    class DummyClass:
+        pass
+    dummy = DummyClass()
+    dummy.amount = 50
+    dummy.date = None
+    dummy.description = None
+    dummy.category = None
+
+    cli.handle_add_inc_command(dummy)
+    out = capsys.readouterr().out
+    expected_out = "ERROR: Error while trying to add Income to db.\n"
+
+    assert out == expected_out
+
+def test_edit_income_positive(monkeypatch, capsys):
+    """test the positive result of editing an income"""
+
+    monkeypatch.setattr(db, "edit_income", lambda *income: True)
+
+    class DummyClass:
+        pass
+    dummy = DummyClass()
+    dummy.amount = 20
+    dummy.date = None
+    dummy.description = "test desc"
+    dummy.category = None
+    dummy.id = 1
+
+    cli.handle_edit_inc_command(dummy)
+    out = capsys.readouterr().out
+    expected_out = "SUCCESS: Edit successful.\n"
+
+    assert out == expected_out
+
+def test_edit_income_negative_1(capsys):
+    """test the negative result of editing an income with no data selected"""
+
+    class DummyClass:
+        pass
+    dummy = DummyClass()
+    dummy.amount = None
+    dummy.date = None
+    dummy.description = None
+    dummy.category = None
+
+    cli.handle_edit_inc_command(dummy)
+    out = capsys.readouterr().out
+    expected_out = "ERROR: Choose at least one income data to edit.\n"
+
+    assert out == expected_out
+
+def test_edit_income_negative_2(capsys):
+    """test the negative result of editing an income with a negative amount"""
+
+    class DummyClass:
+        pass
+    dummy = DummyClass()
+    dummy.amount = -10
+    dummy.date = None
+    dummy.description = None
+    dummy.category = None
+
+    cli.handle_edit_inc_command(dummy)
+    out = capsys.readouterr().out
+    expected_out = "ERROR: Amount needs to be positive (> 0).\n"
+
+    assert out == expected_out
+
+def test_edit_income_negative_3(monkeypatch, capsys):
+    """test the negative result of editing an income with a db error"""
+
+    monkeypatch.setattr(db, "edit_income", lambda *income: False)
+
+    class DummyClass:
+        pass
+    dummy = DummyClass()
+    dummy.amount = 2
+    dummy.date = None
+    dummy.description = "test"
+    dummy.category = None
+    dummy.id = 1
+
+    cli.handle_edit_inc_command(dummy)
+    out = capsys.readouterr().out
+    expected_out = "ERROR: Edit failed.\n"
+
+    assert out == expected_out
+
+def test_delete_income_positive(monkeypatch, capsys):
+    """test the positive result of deleting an income"""
+
+    monkeypatch.setattr(db, "del_income", lambda id: True)
+
+    class DummyClass:
+        pass
+    dummy = DummyClass()
+    dummy.id = 1
+
+    cli.handle_del_inc_command(dummy)
+    out = capsys.readouterr().out
+    expected_out = "SUCCESS: Deletion successful.\n"
+
+    assert out == expected_out
+
+def test_delete_income_negative(monkeypatch, capsys):
+    """test the negative result of deleting an income with a db error"""
+
+    monkeypatch.setattr(db, "del_income", lambda id: False)
+
+    class DummyClass:
+        pass
+    dummy = DummyClass()
+    dummy.id = 1
+
+    cli.handle_del_inc_command(dummy)
+    out = capsys.readouterr().out
+    expected_out = "ERROR: Deletion failed.\n"
+
+    assert out == expected_out
+
+def test_inc_category_validation_positive():
+    """test the income category validation when a correct input is passed"""
+
+    res = cli.validate_income_category("salary")
+
+    assert type(res) == IncCategory
+    assert res.value == IncCategory.SALARY.value
+    assert res.name == IncCategory.SALARY.name
+
+def test_inc_category_validation_negative():
+    """test the income category validation when an incorrect input is passed"""
+
+    with pytest.raises(argparse.ArgumentTypeError) as err:
+        cli.validate_income_category("wrong format")
+
+    expected_out = f"Invalid category: \"wrong format\". Choose from {[category.value for category in IncCategory]}."
+    assert str(err.value) == expected_out

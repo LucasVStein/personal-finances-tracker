@@ -70,7 +70,7 @@ def handle_edit_exp_command(args):
           else "ERROR: Edit failed.")
 
 def handle_del_exp_command(args):
-    print("SUCCESS: Deletion successful" if db.del_expense(args.id) else "ERROR: Deletion failed.")
+    print("SUCCESS: Deletion successful." if db.del_expense(args.id) else "ERROR: Deletion failed.")
     
 def validate_expense_category(category: str):
     if category.capitalize() not in [category.value for category in ExpCategory]:
@@ -83,7 +83,7 @@ def handle_inc_list_command():
     success, value = db.get_incomes()
 
     if not success:
-        print("ERROR: Error while trying to retrieve Income list.")
+        print(f"ERROR: {value}.")
         return
 
     for inc in value:
@@ -105,7 +105,7 @@ def handle_add_inc_command(args):
                     args.category if args.category else IncCategory.OTHER)
     
     success = db.add_income(income)
-    print("SUCCESS: Income added to the db." if success else "ERROR: Error while trying to add Income to the db.")
+    print("SUCCESS: Income added to the db." if success else "ERROR: Error while trying to add Income to db.")
 
 def handle_edit_inc_command(args):
     if args.date is None and args.description is None and args.category is None and args.amount is None:
@@ -115,11 +115,11 @@ def handle_edit_inc_command(args):
         print("ERROR: Amount needs to be positive (> 0).")
         return
     
-    print("SUCCESS: Edit successful" if db.edit_income(args.id, args.date, args.description, args.category, args.amount)
+    print("SUCCESS: Edit successful." if db.edit_income(args.id, args.date, args.description, args.category, args.amount)
           else "ERROR: Edit failed.")
 
 def handle_del_inc_command(args):
-    print("SUCCESS: Deletion successful" if db.del_income(args.id) else "ERROR: Deletion failed.")
+    print("SUCCESS: Deletion successful." if db.del_income(args.id) else "ERROR: Deletion failed.")
 
 def validate_income_category(category: str):
     if category.capitalize() not in [category.value for category in IncCategory]:
