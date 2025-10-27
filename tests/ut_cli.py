@@ -45,7 +45,7 @@ def test_date_validation_negative():
     assert str(err.value) == expected_out
 
 def test_show_balance_positive(monkeypatch, capsys):
-    """positive test the show balance method"""
+    """positive test the show balance function"""
 
     monkeypatch.setattr(db, "get_balance", lambda: (True, 1500))
 
@@ -56,7 +56,7 @@ def test_show_balance_positive(monkeypatch, capsys):
     assert out == expected_out
 
 def test_show_balance_negative(monkeypatch, capsys):
-    """negative test the show balance method"""
+    """negative test the show balance function"""
 
     monkeypatch.setattr(db, "get_balance", lambda: (False, "Database error"))
 
@@ -67,7 +67,7 @@ def test_show_balance_negative(monkeypatch, capsys):
     assert out == expected_out
 
 def test_set_balance_positive(monkeypatch, capsys):
-    """test the positive result of the set balance method"""
+    """test the positive result of the set balance function"""
 
     monkeypatch.setattr(db, "set_balance", lambda balance: True)
 
@@ -83,7 +83,7 @@ def test_set_balance_positive(monkeypatch, capsys):
     assert out == expected_out
 
 def test_set_balance_negative(monkeypatch, capsys):
-    """test the negative result of the set balance method"""
+    """test the negative result of the set balance function"""
 
     monkeypatch.setattr(db, "set_balance", lambda balance: False)
 
@@ -99,7 +99,7 @@ def test_set_balance_negative(monkeypatch, capsys):
     assert out == expected_out
 
 def test_list_expenses_handler_positive(monkeypatch, capsys):
-    """positive test method that handles the list expenses command"""
+    """positive test function that handles the list expenses command"""
 
     dummyExpenses = [(0, "1998-06-04", "description test", "gaming", 70),
                      (1, "2025-10-24", "description test 2", "other", 5)]
@@ -115,7 +115,7 @@ def test_list_expenses_handler_positive(monkeypatch, capsys):
     assert out == expected_out
 
 def test_list_expenses_handler_negative(monkeypatch, capsys):
-    """negative test method that handles the list expenses command"""
+    """negative test function that handles the list expenses command"""
 
     monkeypatch.setattr(db, "get_expenses", lambda: (False, "Database error"))
 
@@ -324,7 +324,7 @@ def test_exp_category_validation_negative():
     assert str(err.value) == expected_out
 
 def test_list_incomes_handler_positive(monkeypatch, capsys):
-    """positive test method that handles the list incomes command"""
+    """positive test function that handles the list incomes command"""
 
     dummyIncomes = [(0, "2025-10-27", "description test", "salary", 2000),
                     (1, "2025-10-24", "description test 2", "other", 5)]
@@ -340,7 +340,7 @@ def test_list_incomes_handler_positive(monkeypatch, capsys):
     assert out == expected_out
 
 def test_list_incomes_handler_negative(monkeypatch, capsys):
-    """negative test method that handles the list incomes command"""
+    """negative test function that handles the list incomes command"""
 
     monkeypatch.setattr(db, "get_incomes", lambda: (False, "Database error"))
 
@@ -547,3 +547,31 @@ def test_inc_category_validation_negative():
 
     expected_out = f"Invalid category: \"wrong format\". Choose from {[category.value for category in IncCategory]}."
     assert str(err.value) == expected_out
+
+@pytest.mark.parametrize("argv, handler_name", [
+    (["src/main.py", "show_balance"], "handle_show_balance"),
+    (["src/main.py", "set_balance", "1000"], "handle_set_balance"),
+    (["src/main.py", "list_exp"], "handle_exp_list_command"),
+    (["src/main.py", "list_inc"], "handle_inc_list_command"),
+    (["src/main.py", "categories"], "handle_categories_command"),
+    (["src/main.py", "add_exp", "10"], "handle_add_exp_command"),
+    (["src/main.py", "edit_exp", "1", "--amount", "10"], "handle_edit_exp_command"),
+    (["src/main.py", "del_exp", "1"], "handle_del_exp_command"),
+    (["src/main.py", "add_inc", "2000"], "handle_add_inc_command"),
+    (["src/main.py", "edit_inc", "1", "--amount", "10"], "handle_edit_inc_command"),
+    (["src/main.py", "del_inc", "1"], "handle_del_inc_command"),
+])
+def test_cli_dispatch(monkeypatch, argv, handler_name):
+    """test the main function of cli, to see if the correct handler is called depending on each command"""
+    
+    result = {"called": False}
+    def set_flag(*args):
+        result["called"] = True
+
+    monkeypatch.setattr(sys, "argv", argv)
+    monkeypatch.setattr(cli, handler_name, set_flag)
+
+    cli.main()
+
+    assert result["called"]
+    
