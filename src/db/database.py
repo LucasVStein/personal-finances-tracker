@@ -126,11 +126,9 @@ def add_expense(expense: Expense, db_path: str = DB_DEFAULT_PATH) -> bool:
         return True
 
     except sqlite3.Error as e:
-        print(f"Database error: {e}")
         return False
     
     except Exception as e:
-        print(f"Unexpected error: {e}")
         return False
 
 def edit_expense(id: int, new_date = None, new_description = None, new_category = None, new_amount = None, db_path: str = DB_DEFAULT_PATH) -> bool:
@@ -260,11 +258,9 @@ def add_income(income: Income, db_path: str = DB_DEFAULT_PATH) -> bool:
         return True
 
     except sqlite3.Error as e:
-        print(f"Database error: {e}")
         return False
     
     except Exception as e:
-        print(f"Unexpected error: {e}")
         return False
 
 def edit_income(id: int, new_date = None, new_description = None, new_category = None, new_amount = None, db_path: str = DB_DEFAULT_PATH) -> bool:

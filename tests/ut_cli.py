@@ -10,8 +10,6 @@ import cli.cli as cli
 from internal_libs.category import ExpCategory
 from internal_libs.category import IncCategory
 import db.database as db
-from internal_libs.expense import Expense
-from internal_libs.income import Income
 
 def test_show_categories(capsys):
     """test if the categories are correctly listed"""
