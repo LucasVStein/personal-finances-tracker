@@ -174,3 +174,41 @@ def test_add_expense_negative_2(monkeypatch):
     monkeypatch.setattr(sqlite3, "connect", mock_connect)
 
     assert not db.add_expense(Expense(0), "fake_path")
+
+def test_edit_expense(tmp_db):
+    """test the db edit_expenses function"""
+
+    db.add_expense(Expense(50), tmp_db)
+    success1 = db.edit_expense(1, new_amount = 1000, new_category = "Utilities", new_date = date(2020, 1, 2), new_description = "description", db_path = tmp_db)
+    success2, expenses = db.get_expenses(tmp_db)
+
+    assert success1
+    assert success2
+    assert expenses[0][0] == 1
+    assert expenses[0][1] == "2020-01-02"
+    assert expenses[0][2] == "description"
+    assert expenses[0][3] == ExpCategory.UTILITIES.value
+    assert expenses[0][4] == 1000
+
+def test_edit_expense_negative_1(monkeypatch):
+    """test if edit_expense returns False when a database error is raised"""
+
+    def mock_connect(_):
+        raise sqlite3.Error("connection failed")
+    monkeypatch.setattr(sqlite3, "connect", mock_connect)
+
+    assert not db.edit_expense(1, new_amount = 10, db_path = "fake_path")
+
+def test_edit_expense_negative_2(monkeypatch):
+    """test if edit_expense returns False when a generic error is raised"""
+
+    def mock_connect(_):
+        raise RuntimeError("generic error")
+    monkeypatch.setattr(sqlite3, "connect", mock_connect)
+
+    assert not db.edit_expense(1, new_amount = 10, db_path = "fake_path")
+
+def test_edit_expense_negative_3(tmp_db):
+    """test if edit_expense returns False when a no values are passed"""
+
+    assert not db.edit_expense(1, db_path = tmp_db)

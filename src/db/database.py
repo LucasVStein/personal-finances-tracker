@@ -1,4 +1,5 @@
 import sqlite3
+from datetime import date
 from pathlib import Path
 
 from internal_libs.expense import Expense
@@ -112,9 +113,9 @@ def add_expense(expense: Expense, db_path: str = DB_DEFAULT_PATH) -> bool:
         cursor = connection.cursor()
 
         cursor.execute(DB_INSERT_EXPENSE_COMMAND, (expense.date.isoformat(),
-                                                expense.description,
-                                                expense.category.name,
-                                                expense.amount))
+                                                   expense.description,
+                                                   expense.category.name,
+                                                   expense.amount))
         
         cursor.execute(DB_GET_BALANCE_COMMAND)
         new_balance = cursor.fetchone()[1] - expense.amount
@@ -137,7 +138,7 @@ def edit_expense(id: int, new_date = None, new_description = None, new_category 
 
     if new_date is not None:
         fields.append("date = ?")
-        values.append(new_date)
+        values.append(new_date.isoformat())
     if new_description is not None:
         fields.append("description = ?")
         values.append(new_description)
@@ -244,9 +245,9 @@ def add_income(income: Income, db_path: str = DB_DEFAULT_PATH) -> bool:
         cursor = connection.cursor()
 
         cursor.execute(DB_INSERT_INCOME_COMMAND, (income.date.isoformat(),
-                                                income.description,
-                                                income.category.name,
-                                                income.amount))
+                                                  income.description,
+                                                  income.category.name,
+                                                  income.amount))
         
         cursor.execute(DB_GET_BALANCE_COMMAND)
         new_balance = cursor.fetchone()[1] + income.amount
@@ -269,7 +270,7 @@ def edit_income(id: int, new_date = None, new_description = None, new_category =
 
     if new_date is not None:
         fields.append("date = ?")
-        values.append(new_date)
+        values.append(new_date.isoformat())
     if new_description is not None:
         fields.append("description = ?")
         values.append(new_description)
