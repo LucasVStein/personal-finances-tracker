@@ -175,11 +175,9 @@ def edit_expense(id: int, new_date = None, new_description = None, new_category 
         return cursor.rowcount > 0
     
     except sqlite3.Error as e:
-        print(f"Database error: {e}")
         return False
     
     except Exception as e:
-        print(f"Unexpected error: {e}")
         return False
 
 def del_expense(id: int, db_path: str = DB_DEFAULT_PATH) -> bool:
@@ -198,11 +196,9 @@ def del_expense(id: int, db_path: str = DB_DEFAULT_PATH) -> bool:
         return cursor.rowcount > 0
     
     except sqlite3.Error as e:
-        print(f"Database error: {e}")
         return False
     
     except Exception as e:
-        print(f"Unexpected error: {e}")
         return False
 
 # INCOMES DB LOGIC _______________________________________________
@@ -232,12 +228,10 @@ def get_incomes(db_path: str = DB_DEFAULT_PATH) -> tuple[bool, list | str]:
         return True, incomes
     
     except sqlite3.Error as e:
-        print(f"Database error: {e}")
-        return False, f"Database error: {e}"
+        return False, "Database error"
     
     except Exception as e:
-        print(f"Unexpected error: {e}")
-        return False, f"Unexpected error: {e}"
+        return False, "Unexpected error"
 
 def add_income(income: Income, db_path: str = DB_DEFAULT_PATH) -> bool:
     try:
@@ -306,11 +300,9 @@ def edit_income(id: int, new_date = None, new_description = None, new_category =
         return cursor.rowcount > 0
 
     except sqlite3.Error as e:
-        print(f"Database error: {e}")
         return False
     
     except Exception as e:
-        print(f"Unexpected error: {e}")
         return False
 
 def del_income(id: int, db_path: str = DB_DEFAULT_PATH) -> bool:
@@ -329,9 +321,7 @@ def del_income(id: int, db_path: str = DB_DEFAULT_PATH) -> bool:
         return cursor.rowcount > 0
     
     except sqlite3.Error as e:
-        print(f"Database error: {e}")
         return False
     
     except Exception as e:
-        print(f"Unexpected error: {e}")
         return False

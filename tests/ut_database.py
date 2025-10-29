@@ -212,3 +212,167 @@ def test_edit_expense_negative_3(tmp_db):
     """test if edit_expense returns False when a no values are passed"""
 
     assert not db.edit_expense(1, db_path = tmp_db)
+
+def test_delete_expense(tmp_db):
+    """test the db del_expense function"""
+
+    db.add_expense(Expense(50), tmp_db)
+    db.add_expense(Expense(100), tmp_db)
+
+    _, expenses = db.get_expenses(tmp_db)
+    assert len(expenses) == 2
+
+    success = db.del_expense(2, tmp_db)
+    _, expenses = db.get_expenses(tmp_db)
+
+    assert success
+    assert len(expenses) == 1
+
+def test_delete_expense_negative_1(monkeypatch):
+    """test if del_expense returns False when a database error is raised"""
+
+    def mock_connect(_):
+        raise sqlite3.Error("connection failed")
+    monkeypatch.setattr(sqlite3, "connect", mock_connect)
+
+    assert not db.del_expense(1, db_path = "fake_path")
+
+def test_delete_expense_negative_2(monkeypatch):
+    """test if del_expense returns False when a generic error is raised"""
+
+    def mock_connect(_):
+        raise RuntimeError("generic error")
+    monkeypatch.setattr(sqlite3, "connect", mock_connect)
+
+    assert not db.del_expense(1, db_path = "fake_path")
+
+def test_get_add_incomes(tmp_db):
+    """test the db get_incomes and add_income functions"""
+
+    income1 = Income(50)
+    income2 = Income(2, date(2024, 4, 1), "test description", IncCategory.INVESTMENT)
+
+    success1 = db.add_income(income1, tmp_db)
+    success2 = db.add_income(income2, tmp_db)
+
+    assert success1
+    assert success2
+
+    success, incomes = db.get_incomes(tmp_db)
+
+    assert success
+    assert len(incomes) == 2
+    assert incomes[1][3] == IncCategory.INVESTMENT.name
+
+def test_get_incomes_negative_1(monkeypatch):
+    """test if get_incomes returns False when a database error is raised"""
+
+    def mock_connect(_):
+        raise sqlite3.Error("connection failed")
+    monkeypatch.setattr(sqlite3, "connect", mock_connect)
+
+    success, msg = db.get_incomes("fake_path")
+
+    assert not success
+    assert msg == "Database error"
+
+def test_get_incomes_negative_2(monkeypatch):
+    """test if get_incomes returns False when a generic error is raised"""
+
+    def mock_connect(_):
+        raise RuntimeError("generic error")
+    monkeypatch.setattr(sqlite3, "connect", mock_connect)
+
+    success, msg = db.get_incomes("fake_path")
+
+    assert not success
+    assert msg == "Unexpected error"
+
+def test_add_income_negative_1(monkeypatch):
+    """test if add_income returns False when a database error is raised"""
+
+    def mock_connect(_):
+        raise sqlite3.Error("connection failed")
+    monkeypatch.setattr(sqlite3, "connect", mock_connect)
+
+    assert not db.add_income(Income(0), "fake_path")
+
+def test_add_income_negative_2(monkeypatch):
+    """test if add_income returns False when a generic error is raised"""
+
+    def mock_connect(_):
+        raise RuntimeError("generic error")
+    monkeypatch.setattr(sqlite3, "connect", mock_connect)
+
+    assert not db.add_income(Income(0), "fake_path")
+
+def test_edit_income(tmp_db):
+    """test the db edit_incomes function"""
+
+    db.add_income(Income(50), tmp_db)
+    success1 = db.edit_income(1, new_amount = 1000, new_category = "Salary", new_date = date(2020, 1, 2), new_description = "description", db_path = tmp_db)
+    success2, incomes = db.get_incomes(tmp_db)
+
+    assert success1
+    assert success2
+    assert incomes[0][0] == 1
+    assert incomes[0][1] == "2020-01-02"
+    assert incomes[0][2] == "description"
+    assert incomes[0][3] == IncCategory.SALARY.value
+    assert incomes[0][4] == 1000
+
+def test_edit_income_negative_1(monkeypatch):
+    """test if edit_income returns False when a database error is raised"""
+
+    def mock_connect(_):
+        raise sqlite3.Error("connection failed")
+    monkeypatch.setattr(sqlite3, "connect", mock_connect)
+
+    assert not db.edit_income(1, new_amount = 10, db_path = "fake_path")
+
+def test_edit_income_negative_2(monkeypatch):
+    """test if edit_income returns False when a generic error is raised"""
+
+    def mock_connect(_):
+        raise RuntimeError("generic error")
+    monkeypatch.setattr(sqlite3, "connect", mock_connect)
+
+    assert not db.edit_income(1, new_amount = 10, db_path = "fake_path")
+
+def test_edit_income_negative_3(tmp_db):
+    """test if edit_income returns False when a no values are passed"""
+
+    assert not db.edit_income(1, db_path = tmp_db)
+
+def test_delete_income(tmp_db):
+    """test the db del_income function"""
+
+    db.add_income(Income(50), tmp_db)
+    db.add_income(Income(100), tmp_db)
+
+    _, incomes = db.get_incomes(tmp_db)
+    assert len(incomes) == 2
+
+    success = db.del_income(2, tmp_db)
+    _, incomes = db.get_incomes(tmp_db)
+
+    assert success
+    assert len(incomes) == 1
+
+def test_delete_income_negative_1(monkeypatch):
+    """test if del_income returns False when a database error is raised"""
+
+    def mock_connect(_):
+        raise sqlite3.Error("connection failed")
+    monkeypatch.setattr(sqlite3, "connect", mock_connect)
+
+    assert not db.del_income(1, db_path = "fake_path")
+
+def test_delete_income_negative_2(monkeypatch):
+    """test if del_income returns False when a generic error is raised"""
+
+    def mock_connect(_):
+        raise RuntimeError("generic error")
+    monkeypatch.setattr(sqlite3, "connect", mock_connect)
+
+    assert not db.del_income(1, db_path = "fake_path")
